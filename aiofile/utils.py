@@ -5,7 +5,18 @@ import os
 from abc import ABC, abstractmethod
 from pathlib import Path
 from types import MappingProxyType
-from typing import Any, Generator, Generic, Optional, Self, Tuple, TypeVar, Union
+from typing import (
+    Any,
+    Generator,
+    Generic,
+    Literal,
+    Optional,
+    Self,
+    Tuple,
+    TypeVar,
+    Union,
+    overload,
+)
 
 from .aio import AIOFile, FileIOType
 
@@ -333,10 +344,32 @@ class TextFileWrapper(FileIOWrapperBase):
                     return line
 
 
+@overload
 def async_open(
     file_specifier: Union[str, Path, FileIOType],
-    mode: str = "r", *args: Any, **kwargs: Any,
-) -> Union[BinaryFileWrapper, TextFileWrapper]:
+    mode: Literal["r", "r+", "w", "w+", "a", "a+"],
+    *args: Any,
+    **kwargs: Any,
+) -> TextFileWrapper: ...
+
+
+@overload
+def async_open(
+    file_specifier: Union[str, Path, FileIOType],
+    mode: Literal["rb", "rb+", "wb", "wb+", "ab", "ab+"],
+    *args: Any,
+    **kwargs: Any,
+) -> BinaryFileWrapper: ...
+
+
+def async_open(
+    file_specifier: Union[str, Path, FileIOType],
+    mode: Literal[
+        "r", "r+", "w", "w+", "a", "a+", "rb", "rb+", "wb", "wb+", "ab", "ab+"
+    ] = "r",
+    *args: Any,
+    **kwargs: Any,
+) -> BinaryFileWrapper | TextFileWrapper:
     if isinstance(file_specifier, (str, Path)):
         afp = AIOFile(str(file_specifier), mode, *args, **kwargs)
     else:
