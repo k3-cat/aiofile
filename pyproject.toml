@@ -1,6 +1,6 @@
 [project]
 name = "aiofile"
-version = "3.9.0"
+version = "3.11.1"
 description = "Asynchronous file operations."
 license = "Apache-2.0"
 authors = [
