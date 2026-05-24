@@ -20,17 +20,21 @@ from typing import (
 
 from .aio import AIOFile, FileIOType
 
-
-ENCODING_MAP = MappingProxyType({
-    "utf-8": 4,
-    "utf-16": 8,
-    "UTF-8": 4,
-    "UTF-16": 8,
-})
+ENCODING_MAP = MappingProxyType(
+    {
+        "utf-8": 4,
+        "utf-16": 8,
+        "UTF-8": 4,
+        "UTF-16": 8,
+    }
+)
 
 
 async def unicode_reader(
-    afp: AIOFile, chunk_size: int, offset: int, encoding: str = "utf-8",
+    afp: AIOFile,
+    chunk_size: int,
+    offset: int,
+    encoding: str = "utf-8",
 ) -> Tuple[int, str]:
 
     if chunk_size < 0:
@@ -46,7 +50,7 @@ async def unicode_reader(
         except UnicodeDecodeError as e:
             last_error = e
     else:
-        raise last_error    # type: ignore
+        raise last_error  # type: ignore
 
     chunk_size = len(chunk_bytes)
 
@@ -59,7 +63,9 @@ class Reader(collections.abc.AsyncIterable):
     CHUNK_SIZE = 32 * 1024
 
     def __init__(
-        self, aio_file: AIOFile, offset: int = 0,
+        self,
+        aio_file: AIOFile,
+        offset: int = 0,
         chunk_size: int = CHUNK_SIZE,
     ):
 
@@ -74,12 +80,15 @@ class Reader(collections.abc.AsyncIterable):
         async with self.__lock:
             if self.file.mode.binary:
                 chunk = await self.file.read_bytes(
-                    self._chunk_size, self.__offset,
-                )   # type: Union[str, bytes]
+                    self._chunk_size,
+                    self.__offset,
+                )  # type: Union[str, bytes]
                 chunk_size = len(chunk)
             else:
                 chunk_size, chunk = await unicode_reader(
-                    self.file, self._chunk_size, self.__offset,
+                    self.file,
+                    self._chunk_size,
+                    self.__offset,
                     encoding=self.encoding,
                 )
         self.__offset += chunk_size
@@ -118,8 +127,11 @@ class LineReader(collections.abc.AsyncIterable):
     CHUNK_SIZE = 4192
 
     def __init__(
-        self, aio_file: AIOFile, offset: int = 0,
-        chunk_size: int = CHUNK_SIZE, line_sep: str = "\n",
+        self,
+        aio_file: AIOFile,
+        offset: int = 0,
+        chunk_size: int = CHUNK_SIZE,
+        line_sep: str = "\n",
     ):
         self.__reader = Reader(aio_file, chunk_size=chunk_size, offset=offset)
 
@@ -191,7 +203,7 @@ class FileIOWrapperBase(ABC):
 
     @abstractmethod
     async def readline(
-        self, size: int = -1, newline: Any = ...,
+        self, size: int = -1, newline: Any = ...
     ) -> Union[str, bytes]:
         raise NotImplementedError
 
@@ -288,7 +300,10 @@ class TextFileWrapper(FileIOWrapperBase):
         chunk = ""
         while length < 0 or length > len(chunk):
             part_offset, part = await unicode_reader(
-                self.file, length, offset, self.encoding,
+                self.file,
+                length,
+                offset,
+                self.encoding,
             )
 
             if not part:
