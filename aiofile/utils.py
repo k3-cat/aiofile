@@ -5,7 +5,7 @@ import os
 from abc import ABC, abstractmethod
 from pathlib import Path
 from types import MappingProxyType
-from typing import Any, Generator, Generic, Optional, Tuple, TypeVar, Union
+from typing import Any, Generator, Generic, Optional, Self, Tuple, TypeVar, Union
 
 from .aio import AIOFile, FileIOType
 
@@ -199,11 +199,11 @@ class FileIOWrapperBase(ABC):
     async def close(self) -> None:
         await self.file.close()
 
-    def __await__(self) -> Generator[None, None, "FileIOWrapperBase"]:
+    def __await__(self) -> Generator[None, None, Self]:
         yield from self.file.__await__()
         return self
 
-    async def __aenter__(self) -> "FileIOWrapperBase":
+    async def __aenter__(self) -> Self:
         await self.file.open()
         return self
 
